@@ -1,6 +1,6 @@
 // Keeps the app working offline: the app's own files are cached on the device.
-const CACHE = "agent-daily-v1";
-const FILES = ["./", "./index.html", "./app.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
+const CACHE = "agent-daily-v2";
+const FILES = ["./", "./index.html", "./app.js", "./manifest.webmanifest", "./icon-180_1.png", "./icon-192_1.png", "./icon-512_1.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
