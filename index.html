@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agent Daily</title>
+<meta name="description" content="Arjun's daily tracker: water, meals, wake-up, singing, guitar, job tasks and expenses.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Agent Daily">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#e7e6e2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161615" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a Braun-style instrument. Warm grey body, each habit a soft raised panel with a black display window, dot meters and round keys. Orange is the single accent, used for lamps and the send key. */
+:root{
+  --body:#e7e6e2; --panel:#f3f2ef; --panel-hi:#ffffff; --well:#e2e1dd;
+  --ink:#1c1c1b; --muted:#77766f; --hair:#d6d5d0;
+  --lcd:#1d1e1c; --lcd-ink:#ecebe4; --lcd-dim:#8d8c85;
+  --accent:#ee6a1f; --on-accent:#ffffff; --ok:#4c8a5c; --danger:#c23a2b; --screen-edge:rgba(255,255,255,.7);
+  --shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 1px 2px rgba(40,38,30,.08), 0 10px 28px -12px rgba(40,38,30,.22);
+  --key-shadow:0 1px 0 rgba(255,255,255,.95) inset, 0 -1px 0 rgba(0,0,0,.06) inset, 0 2px 4px rgba(40,38,30,.14);
+  --display:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --sans:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --body:#161615; --panel:#20201e; --panel-hi:#2a2a28; --well:#1a1a19;
+    --ink:#ecebe6; --muted:#97968f; --hair:#33332f;
+    --lcd:#0b0b0a; --lcd-ink:#ecebe4; --lcd-dim:#7b7a74;
+    --accent:#ff7a2e; --on-accent:#161615; --ok:#73b585; --danger:#ff7a6e; --screen-edge:rgba(255,255,255,.04);
+    --shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 1px 2px rgba(0,0,0,.4), 0 12px 30px -14px rgba(0,0,0,.7);
+    --key-shadow:0 1px 0 rgba(255,255,255,.07) inset, 0 -1px 0 rgba(0,0,0,.3) inset, 0 2px 5px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --body:#161615; --panel:#20201e; --panel-hi:#2a2a28; --well:#1a1a19;
+  --ink:#ecebe6; --muted:#97968f; --hair:#33332f;
+  --lcd:#0b0b0a; --lcd-ink:#ecebe4; --lcd-dim:#7b7a74;
+  --accent:#ff7a2e; --on-accent:#161615; --ok:#73b585; --danger:#ff7a6e; --screen-edge:rgba(255,255,255,.04);
+  --shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 1px 2px rgba(0,0,0,.4), 0 12px 30px -14px rgba(0,0,0,.7);
+  --key-shadow:0 1px 0 rgba(255,255,255,.07) inset, 0 -1px 0 rgba(0,0,0,.3) inset, 0 2px 5px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+
+html,body{min-height:100%}
+body{background:var(--body);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.wrap{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 210px;display:flex;flex-direction:column;gap:18px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+button:disabled{opacity:.4;cursor:default}
+
+/* masthead */
+.mast{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding-bottom:6px}
+.mast-num{display:flex;align-items:flex-start;gap:8px;font-family:var(--display);font-weight:600;font-size:clamp(76px,17vw,132px);line-height:.78;letter-spacing:-.06em}
+.mast-num sup{font-size:clamp(14px,3vw,18px);font-weight:400;letter-spacing:0;line-height:1;margin-top:.15em;color:var(--muted)}
+.mast-side{display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:4px;min-width:0}
+.mast-side h1{margin:0;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em}
+.mast-side .when{font-size:13px;color:var(--muted)}
+.chip{font-family:var(--mono);font-variant-numeric:tabular-nums;background:var(--lcd);color:var(--lcd-ink);padding:5px 10px;border-radius:7px;font-size:12px;letter-spacing:.08em;box-shadow:0 1px 0 rgba(255,255,255,.08) inset;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.chip .lamp{width:6px;height:6px}
+
+/* panels */
+.panel{background:var(--panel);border-radius:20px;box-shadow:var(--shadow);padding:16px}
+.lamp{width:8px;height:8px;border-radius:50%;background:var(--hair);flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.04) inset}
+.lamp.on{background:var(--ok);box-shadow:0 0 8px -1px var(--ok)}
+.lamp.hot{background:var(--accent);box-shadow:0 0 8px -1px var(--accent)}
+
+/* controls row: day selector + mode switch */
+.controls{display:flex;flex-direction:column;gap:14px;padding:12px}
+.strip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.strip::-webkit-scrollbar{display:none}
+.strip button{flex:none;width:48px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;border-radius:12px;background:transparent;color:var(--muted)}
+.strip button:hover{background:var(--well)}
+.strip .wd{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em}
+.strip .dn{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.strip button[aria-pressed="true"]{background:var(--lcd);color:var(--lcd-dim)}
+.strip button[aria-pressed="true"] .dn{color:var(--lcd-ink)}
+.ctl-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px}
+.ctl-row .cap{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.switch{display:inline-flex;background:var(--well);border-radius:999px;padding:3px;box-shadow:0 1px 2px rgba(0,0,0,.08) inset}
+.switch button{border:0;background:transparent;border-radius:999px;padding:6px 16px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.switch button[aria-selected="true"]{background:var(--panel-hi);color:var(--ink);box-shadow:var(--key-shadow)}
+
+.notice{background:var(--panel);border-radius:14px;padding:12px 16px;color:var(--muted);box-shadow:var(--shadow)}
+
+/* habit modules */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:600px){.grid{grid-template-columns:minmax(0,1fr)}}
+.mod{display:flex;flex-direction:column;gap:14px;min-width:0}
+.mod.wide{grid-column:1/-1}
+.mod-h{display:flex;align-items:center;gap:10px;min-height:36px}
+.mod-h .lbl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em}
+.mod-h .sub{font-size:12px;color:var(--muted);flex:1;min-width:0}
+.mod-h .sp{flex:1}
+.key{flex:none;border:0;background:var(--panel-hi);box-shadow:var(--key-shadow);border-radius:50%;width:36px;height:36px;display:grid;place-items:center;font-size:19px;line-height:1;color:var(--ink);transition:transform .08s}
+.key:active{transform:translateY(1px);box-shadow:0 1px 1px rgba(0,0,0,.12)}
+.key:hover{color:var(--accent)}
+
+.screen{background:var(--lcd);color:var(--lcd-ink);border-radius:12px;padding:12px 14px 10px;display:flex;align-items:baseline;gap:8px;box-shadow:0 2px 6px rgba(0,0,0,.35) inset, 0 1px 0 var(--screen-edge)}
+.screen .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:34px;font-weight:500;line-height:1;letter-spacing:-.02em}
+.screen .u{font-family:var(--mono);font-size:13px;color:var(--lcd-dim)}
+.screen .v.dim{color:var(--lcd-dim)}
+
+.dots{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;padding:2px 2px 0}
+.dots i{aspect-ratio:1;border-radius:50%;background:var(--well);box-shadow:0 1px 1px rgba(0,0,0,.12) inset;max-width:100%}
+.dots i.f{background:var(--ink);box-shadow:none}
+.dots.full i.f{background:var(--accent)}
+.scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);padding:0 2px}
+
+ul.entries{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+ul.entries:empty{display:none}
+ul.entries li{display:flex;align-items:center;gap:10px;padding:8px 2px;border-top:1px solid var(--hair);font-size:14px;min-width:0}
+.e-time{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;flex:none;width:42px}
+.e-main{flex:1;min-width:0;overflow-wrap:anywhere}
+.e-sub{color:var(--muted)}
+.rm{border:0;background:none;padding:2px 6px;font-size:13px;color:var(--muted);flex:none;border-radius:6px}
+.rm:hover{color:var(--ink)}
+.rm.armed{color:var(--danger);box-shadow:0 0 0 1px var(--danger) inset}
+
+/* meal keys */
+.mkeys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:420px){.mkeys{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:16px}}
+.mkey{border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0}
+.mkey .face{width:72px;height:72px;max-width:100%;border-radius:50%;background:var(--panel-hi);box-shadow:var(--key-shadow);display:grid;place-items:center;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15px;font-weight:500;color:var(--muted);transition:transform .08s}
+.mkey:active .face{transform:translateY(1px)}
+.mkey.eaten .face{color:var(--ink)}
+.mkey .top{display:flex;align-items:center;gap:6px;justify-content:center}
+.mkey .nm{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em}
+.mkey .gl{font-size:12px;color:var(--muted);min-height:1.45em}
+.mkey .gl.late{color:var(--accent)}
+.mnotes{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.mnotes:empty{display:none}
+
+/* tasks */
+.task .tick{appearance:none;-webkit-appearance:none;margin:0;width:22px;height:22px;border-radius:50%;background:var(--panel-hi);box-shadow:var(--key-shadow);flex:none;cursor:pointer;display:grid;place-items:center}
+.task .tick:checked{background:var(--accent);box-shadow:0 0 8px -2px var(--accent)}
+.task .tick:checked::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--on-accent)}
+.task.done .e-main{color:var(--muted);text-decoration:line-through}
+
+/* chat */
+#chat-view{display:flex;flex-direction:column;gap:10px}
+.bubble{max-width:85%;padding:10px 14px;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:16px}
+.bubble.user{align-self:flex-end;background:var(--lcd);color:var(--lcd-ink);border-bottom-right-radius:6px}
+.bubble.assistant{align-self:flex-start;background:var(--panel);box-shadow:var(--shadow);border-bottom-left-radius:6px}
+.acts{list-style:none;margin:8px 0 0;padding:0;font-size:12px;color:var(--muted);font-family:var(--mono);display:flex;flex-direction:column;gap:2px}
+.acts li{display:flex;align-items:center;gap:6px}
+.acts:empty{display:none}
+.empty-chat{color:var(--muted);font-size:14px;margin:0;padding:8px 4px}
+
+/* composer */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:5;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));padding-top:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:linear-gradient(to top,var(--body) 70%,transparent)}
+.dock-in{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+#last-reply{font-size:13px;color:var(--muted);white-space:pre-wrap;max-height:4.5em;overflow:auto;padding:0 8px}
+#composer{display:flex;gap:10px;align-items:flex-end;background:var(--panel);border-radius:26px;box-shadow:var(--shadow);padding:6px 6px 6px 16px}
+textarea{flex:1;min-width:0;resize:none;font:inherit;color:var(--ink);background:transparent;border:0;padding:10px 0;max-height:120px}
+textarea:focus-visible{outline:none}
+textarea::placeholder{color:var(--muted)}
+.round{flex:none;width:42px;height:42px;border-radius:50%;border:0;display:grid;place-items:center;font-size:18px;line-height:1}
+#send{background:var(--accent);color:var(--on-accent);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 2px 6px -1px var(--accent)}
+#stop{background:var(--lcd);color:var(--lcd-ink)}
+#stop i{width:11px;height:11px;background:currentColor;border-radius:2px}
+
+/* bottom sheet */
+#sheet-bg{position:fixed;inset:0;z-index:20;background:rgba(20,20,18,.35);backdrop-filter:blur(2px)}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--panel);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.18);padding-top:10px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sheet::before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:var(--hair);margin:0 auto 14px}
+.sheet-in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.sheet h3{margin:0;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .flabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.field input{font:inherit;color:var(--ink);background:var(--well);border:0;border-radius:12px;padding:11px 14px;box-shadow:0 1px 2px rgba(0,0,0,.1) inset;min-width:0}
+.field input[type=number],.field input[type=time]{font-family:var(--mono);font-size:17px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{border:0;background:var(--panel-hi);box-shadow:var(--key-shadow);border-radius:999px;padding:7px 14px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--lcd);color:var(--lcd-ink);box-shadow:none}
+.sheet-actions{display:flex;gap:10px;justify-content:flex-end;align-items:center}
+.sheet-actions .txt{border:0;background:none;padding:10px 12px;color:var(--muted);font-size:14px}
+.sheet-actions .txt.clear{margin-right:auto;color:var(--danger)}
+#sheet-save{border:0;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:10px 22px;font-weight:600;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 2px 6px -1px var(--accent)}
+.sheet-err{color:var(--danger);font-size:13px;min-height:1em}
+@media (prefers-reduced-motion:reduce){.key,.mkey .face{transition:none}}
+
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+.wrap{padding-top:calc(28px + env(safe-area-inset-top,0px))}
+.sheet-note{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+.mast-side .row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mast-side .row .chip{margin-bottom:0}
+#settings-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-num"><span id="d-num"></span><sup id="d-word"></sup></div>
+    <div class="mast-side">
+      <div class="row">
+        <span class="chip"><span class="lamp hot"></span><span id="d-chip"></span></span>
+        <button class="key" type="button" id="settings-btn" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+      </div>
+      <h1>Agent Daily</h1>
+      <span class="when" id="date-label"></span>
+    </div>
+  </header>
+
+  <section class="panel controls">
+    <div class="strip" id="strip" aria-label="Choose a day"></div>
+    <div class="ctl-row">
+      <span class="cap" id="logged-cap"></span>
+      <div class="switch" role="tablist">
+        <button role="tab" id="tab-today" aria-selected="true">Day</button>
+        <button role="tab" id="tab-chat" aria-selected="false">Chat</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="notice" class="notice" hidden></div>
+
+  <div id="today-view" class="grid">
+    <section class="panel mod" id="t-water"></section>
+    <section class="panel mod" id="t-wake"></section>
+    <section class="panel mod wide" id="t-meals"></section>
+    <section class="panel mod" id="t-singing"></section>
+    <section class="panel mod" id="t-guitar"></section>
+    <section class="panel mod wide" id="t-tasks"></section>
+    <section class="panel mod wide" id="t-expenses"></section>
+  </div>
+
+  <div id="chat-view" hidden><p class="empty-chat" id="chat-empty">Messages you send appear here, with what the agent logged.</p></div>
+</div>
+
+<div class="dock">
+  <div class="dock-in">
+    <div id="last-reply" hidden></div>
+    <form id="composer">
+      <textarea id="msg" rows="1" placeholder="Tell it what you did…" aria-label="Message"></textarea>
+      <button type="submit" id="send" class="round" aria-label="Send">↑</button>
+      <button type="button" id="stop" class="round" aria-label="Stop" hidden><i></i></button>
+    </form>
+  </div>
+</div>
+
+<div id="sheet-bg" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <form class="sheet-in" id="sheet-form">
+    <h3 id="sheet-title"></h3>
+    <div id="sheet-fields" style="display:flex;flex-direction:column;gap:14px"></div>
+    <div class="sheet-err" id="sheet-err"></div>
+    <div class="sheet-actions">
+      <button type="button" class="txt clear" id="sheet-clear" hidden>Clear</button>
+      <button type="button" class="txt" id="sheet-cancel">Cancel</button>
+      <button type="submit" id="sheet-save">Save</button>
+    </div>
+  </form>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
